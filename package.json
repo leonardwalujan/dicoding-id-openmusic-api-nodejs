@@ -1,6 +1,6 @@
 {
   "name": "openmusic-api-back-end",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Dicoding OpenMusic API",
   "main": "index.js",
   "scripts": {

@@ -13,8 +13,10 @@ This is a project assignment for Dicoding "[Belajar Fundamental Aplikasi Back-en
 
 ## Version
 
-### v1.0.0 (current)
+### v1.0.1 (current)
 
 In v1.0.0 this API include 2 main features: Data Validation and Database.
+
+**(NEW)** In v1.0.1, I optimise this code from src/api/albums/handler.js and src/api/songs/handler.js with removing some redundant code, fixing the linter issue, and optimise another code with implementing from linter suggestions.
 
 Note: The code documentation for this repository is written using Bahasa Indonesia.

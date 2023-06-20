@@ -1,21 +1,17 @@
 {
   "env": {
-    "browser": true,
     "commonjs": true,
     "es2021": true,
     "node": true
   },
-  "extends": "google",
+  "extends": ["airbnb-base"],
   "parserOptions": {
-    "ecmaVersion": "latest"
+    "ecmaVersion": 2020
   },
   "rules": {
     "import/no-extraneous-dependencies": "off",
     "no-console": "off",
-    "no-underscore-dangle": "off",
-    "no-trailing-spaces": "off",
     "indent": "off",
-    "linebreak-style": "off",
     "object-curly-newline": "off",
     "camelcase": "off"
   }

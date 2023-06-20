@@ -11,7 +11,7 @@ class SongService {
    * Membuat instance baru dari kelas `SongService`.
    */
   constructor() {
-    this._pool = new Pool();
+    this.pool = new Pool();
   }
 
   /**
@@ -28,14 +28,21 @@ class SongService {
    */
   async addSong(payload) {
     const id = `song-${nanoid(12)}`;
-    const { title, year, performer, genre, duration = null, albumId = null } = payload;
+    const {
+      title,
+      year,
+      performer,
+      genre,
+      duration = null,
+      albumId = null,
+    } = payload;
 
     const query = {
       text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
       values: [id, title, year, performer, genre, duration, albumId],
     };
 
-    const { rows, rowCount } = await this._pool.query(query);
+    const { rows, rowCount } = await this.pool.query(query);
     if (!rowCount) {
       throw new InvariantError('Lagu gagal ditambahkan');
     }
@@ -55,7 +62,7 @@ class SongService {
       values: [`%${title}%`, `%${performer}%`],
     };
 
-    const { rows } = await this._pool.query(query);
+    const { rows } = await this.pool.query(query);
 
     return rows;
   }
@@ -72,7 +79,7 @@ class SongService {
       values: [id],
     };
 
-    const { rows, rowCount } = await this._pool.query(query);
+    const { rows, rowCount } = await this.pool.query(query);
     if (!rowCount) {
       throw new NotFoundError('Lagu tidak ditemukan');
     }
@@ -100,7 +107,7 @@ class SongService {
       values: [title, year, performer, genre, duration, albumId, id],
     };
 
-    const { rowCount } = await this._pool.query(query);
+    const { rowCount } = await this.pool.query(query);
     if (!rowCount) {
       throw new NotFoundError('Gagal memperbarui lagu, ID tidak ditemukan');
     }
@@ -117,7 +124,7 @@ class SongService {
       values: [id],
     };
 
-    const { rowCount } = await this._pool.query(query);
+    const { rowCount } = await this.pool.query(query);
 
     if (!rowCount) {
       throw new NotFoundError('Gagal menghapus lagu, ID tidak ditemukan');
