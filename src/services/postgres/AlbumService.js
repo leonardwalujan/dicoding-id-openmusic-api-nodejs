@@ -11,7 +11,7 @@ class AlbumService {
    * Membuat instance baru dari kelas `AlbumService`.
    */
   constructor() {
-    this._pool = new Pool();
+    this.pool = new Pool();
   }
 
   /**
@@ -30,7 +30,7 @@ class AlbumService {
       values: [id, name, year],
     };
 
-    const { rows } = await this._pool.query(query);
+    const { rows } = await this.pool.query(query);
     if (!rows[0].id) {
       throw new InvariantError('Gagal menambahkan album');
     }
@@ -68,7 +68,7 @@ class AlbumService {
       values: [id],
     };
 
-    const { rows, rowCount } = await this._pool.query(query);
+    const { rows, rowCount } = await this.pool.query(query);
     if (!rowCount) {
       throw new NotFoundError('Album tidak ditemukan');
     }
@@ -89,7 +89,7 @@ class AlbumService {
       values: [name, year, id],
     };
 
-    const { rowCount } = await this._pool.query(query);
+    const { rowCount } = await this.pool.query(query);
     if (!rowCount) {
       throw new NotFoundError('Gagal memperbarui album, album tidak ditemukan');
     }
@@ -106,7 +106,7 @@ class AlbumService {
       values: [id],
     };
 
-    const { rowCount } = await this._pool.query(query);
+    const { rowCount } = await this.pool.query(query);
     if (!rowCount) {
       throw new NotFoundError('Gagal menghapus album, album tidak ditemukan');
     }
