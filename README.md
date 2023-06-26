@@ -27,6 +27,6 @@ In v1.0.1, I optimise this code from src/api/albums/handler.js and src/api/songs
 **(NEW)** In v2.0.0 this API implements Authentication and Authorization. Features in v2.0.0 includes:
 
 - User Account
-- Playlist and Playlist Collaboration
+- Playlists and Playlists Collaboration
 
 Note: The code documentation for this repository is written using Bahasa Indonesia.
