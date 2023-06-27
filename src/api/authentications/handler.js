@@ -2,11 +2,12 @@ const autoBind = require('auto-bind');
 
 class AuthenticationsHandler {
   /**
-   * Membuat instance dari AuthenticationsHandler.
-   * @param {Object} authenticationService - Instance dari authenticationService.
-   * @param {Object} userService - Instance dari userService.
-   * @param {Object} tokenManager - Instance dari tokenManager.
-   * @param {Object} validator - Instance dari validator.
+   * Membuat instance baru dari kelas `AuthenticationsHandler`.
+   *
+   * @param {Object} authenticationService - Instance dari `AuthenticationService`.
+   * @param {Object} userService - Instance dari `UserService`.
+   * @param {Object} tokenManager - Instance dari `TokenManager`.
+   * @param {Object} validator - Instance dari `Validator`.
    */
   constructor(authenticationService, userService, tokenManager, validator) {
     this.authenticationService = authenticationService;
@@ -19,9 +20,10 @@ class AuthenticationsHandler {
 
   /**
    * Handler untuk permintaan POST pada endpoint /authentication.
+   *
    * @param {Object} request - Objek request dari server.
-   * @param {Object} h - Objek respons toolkit dari hapi.
-   * @returns {Object} - Objek respons HTTP.
+   * @param {Object} h - Toolkit response dari hapi.js.
+   * @returns {Object} Objek response HTTP.
    */
   async postAuthenticationHandler(request, h) {
     this.validator.validatePostAuthenticationPayload(request.payload);
@@ -51,8 +53,9 @@ class AuthenticationsHandler {
 
   /**
    * Handler untuk permintaan PUT pada endpoint /authentication.
+   *
    * @param {Object} request - Objek request dari server.
-   * @returns {Object} - Objek respons HTTP.
+   * @returns {Object} Objek response HTTP.
    */
   async putAuthenticationHandler(request) {
     this.validator.validatePutAuthenticationPayload(request.payload);
@@ -74,8 +77,9 @@ class AuthenticationsHandler {
 
   /**
    * Handler untuk permintaan DELETE pada endpoint /authentication.
+   *
    * @param {Object} request - Objek request dari server.
-   * @returns {Object} - Objek respons HTTP.
+   * @returns {Object} Objek response HTTP.
    */
   async deleteAuthenticationHandler(request) {
     this.validator.validateDeleteAuthenticationPayload(request.payload);

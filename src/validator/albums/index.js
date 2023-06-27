@@ -1,11 +1,29 @@
 const InvariantError = require('../../exceptions/InvariantError');
-const { AlbumPayloadSchema } = require('./schema');
+const { AlbumPayloadSchema, PostCoverHeadersSchema } = require('./schema');
 
+/**
+ * Validator untuk data album.
+ */
 const AlbumsValidator = {
-  validateAlbumPayload: (payload) => {
-    const validationResult = AlbumPayloadSchema.validate(payload);
-    if (validationResult.error) {
-      throw new InvariantError(validationResult.error.message);
+  /**
+   * Memvalidasi payload album.
+   * @param {object} payload - Payload album.
+   */
+  validateAlbumPayload(payload) {
+    const { error } = AlbumPayloadSchema.validate(payload);
+    if (error) {
+      throw new InvariantError(error.message);
+    }
+  },
+
+  /**
+   * Memvalidasi header saat mengunggah cover album.
+   * @param {object} headers - Header permintaan.
+   */
+  validateCoverHeaders(headers) {
+    const { error } = PostCoverHeadersSchema.validate(headers);
+    if (error) {
+      throw new InvariantError(error.message);
     }
   },
 };

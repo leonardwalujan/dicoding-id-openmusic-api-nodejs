@@ -2,22 +2,19 @@ const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 
-/**
- * Class yang menangani operasi terkait kolaborasi playlist.
- */
 class CollaborationService {
   /**
-   * Membuat instance dari CollaborationService.
+   * Membuat instance baru dari CollaborationService.
    */
   constructor() {
     this.pool = new Pool();
   }
 
   /**
-   * Menambahkan kolaborasi playlist baru.
+   * Menambahkan kolaborasi baru ke dalam database.
    * @param {string} playlistId - ID playlist.
    * @param {string} userId - ID pengguna.
-   * @returns {string} - ID kolaborasi.
+   * @returns {string} - ID kolaborasi yang ditambahkan.
    */
   async addCollaboration(playlistId, userId) {
     const id = `collab-${nanoid(16)}`;
@@ -32,7 +29,7 @@ class CollaborationService {
   }
 
   /**
-   * Menghapus kolaborasi playlist.
+   * Menghapus kolaborasi dari database.
    * @param {string} playlistId - ID playlist.
    * @param {string} userId - ID pengguna.
    * @throws {InvariantError} - Jika gagal menghapus user collaborator.
@@ -47,12 +44,12 @@ class CollaborationService {
     const { rowCount } = await this.pool.query(query);
 
     if (!rowCount) {
-      throw new InvariantError('Gagal menghapus user collaborator');
+      throw new InvariantError('Gagal menghapus user collaborator!');
     }
   }
 
   /**
-   * Memverifikasi keberadaan kolaborator pada playlist.
+   * Memverifikasi keberadaan kolaborator.
    * @param {string} playlistId - ID playlist.
    * @param {string} userId - ID pengguna.
    * @throws {InvariantError} - Jika kolaborasi gagal diverifikasi.
@@ -67,7 +64,7 @@ class CollaborationService {
     const { rowCount } = await this.pool.query(query);
 
     if (!rowCount) {
-      throw new InvariantError('Kolaborasi gagal diverifikasi');
+      throw new InvariantError('Kolaborasi gagal diverifikasi!');
     }
   }
 }

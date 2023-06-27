@@ -2,30 +2,39 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const path = require('path');
+const Inert = require('@hapi/inert');
+const config = require('./utils/config');
 
-// Import API modules
+// Import API routes
 const albums = require('./api/albums');
 const songs = require('./api/songs');
 const users = require('./api/users');
 const authentications = require('./api/authentications');
 const playlists = require('./api/playlists');
 const collaborations = require('./api/collaborations');
+const _exports = require('./api/export');
 
 // Import services
 const AlbumService = require('./services/postgres/AlbumService');
+const AlbumsLikeService = require('./services/postgres/AlbumsLikeService');
 const SongService = require('./services/postgres/SongService');
 const UserService = require('./services/postgres/UserService');
 const AuthenticationService = require('./services/postgres/AuthenticationService');
 const CollaborationService = require('./services/postgres/CollaborationService');
 const PlaylistService = require('./services/postgres/PlaylistService');
+const ProducerService = require('./services/rabbitmq/ProducerService');
+const StorageService = require('./services/storage/StorageService');
+const CacheService = require('./services/redis/CacheService');
 
 // Import validators
-const AlbumValidator = require('./validator/albums');
-const SongValidator = require('./validator/songs');
-const UserValidator = require('./validator/users');
+const AlbumsValidator = require('./validator/albums');
+const SongsValidator = require('./validator/songs');
+const UsersValidator = require('./validator/users');
 const AuthenticationsValidator = require('./validator/authentications');
-const PlaylistValidator = require('./validator/playlists');
-const CollaborationValidator = require('./validator/collaborations');
+const PlaylistsValidator = require('./validator/playlists');
+const CollaborationsValidator = require('./validator/collaborations');
+const ExportsValidator = require('./validator/export');
 
 // Import exceptions
 const ClientError = require('./exceptions/ClientError');
@@ -33,22 +42,24 @@ const ClientError = require('./exceptions/ClientError');
 // Import token manager
 const TokenManager = require('./tokenize/TokenManager');
 
-/**
- * Inisialisasi server Hapi
- */
 const init = async () => {
-  // Buat instance dari setiap service
+  // Inisialisasi layanan dan objek yang diperlukan
+  const cacheService = new CacheService();
   const albumService = new AlbumService();
-  const songService = new SongService();
+  const songService = new SongService(cacheService);
   const userService = new UserService();
   const authenticationService = new AuthenticationService();
   const collaborationService = new CollaborationService();
   const playlistService = new PlaylistService(collaborationService);
+  const storageService = new StorageService(
+    path.resolve(__dirname, 'api/albums/covers'),
+  );
+  const albumsLikeService = new AlbumsLikeService(cacheService);
 
-  // Buat server Hapi
+  // Konfigurasi server Hapi
   const server = Hapi.server({
-    host: process.env.HOST,
-    port: process.env.PORT,
+    host: config.app.host,
+    port: config.app.port,
     routes: {
       cors: {
         origin: ['*'],
@@ -56,9 +67,7 @@ const init = async () => {
     },
   });
 
-  /**
-   * Extension point untuk menangani respons sebelum dikirimkan ke client
-   */
+  // Menangani kesalahan pada respons
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
 
@@ -76,22 +85,29 @@ const init = async () => {
         return h.continue;
       }
 
-      const newResponse = h.response({
-        status: 'error',
-        message: 'Terjadi kegagalan pada server kami',
-      });
-      newResponse.code(500);
-      console.error(`Terjadi kesalahan: ${response.message}`);
-      return newResponse;
+      // const newResponse = h.response({
+      //   status: 'error',
+      //   message: 'Terjadi kegagalan pada server kami',
+      // });
+      // newResponse.code(500);
+      // console.error(`Terjadi kesalahan: ${response.message}`);
+      // return newResponse;
     }
 
     return h.continue;
   });
 
-  // Registrasi plugin JWT
-  await server.register(Jwt);
+  // Registrasi plugin Hapi
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+    {
+      plugin: Inert,
+    },
+  ]);
 
-  // Konfigurasi strategi autentikasi JWT
+  // Konfigurasi strategi otentikasi JWT
   server.auth.strategy('openmusic_jwt', 'jwt', {
     keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
@@ -112,15 +128,26 @@ const init = async () => {
   await server.register([
     {
       plugin: albums,
-      options: { service: albumService, validator: AlbumValidator },
+      options: {
+        service: albumService,
+        likeService: albumsLikeService,
+        storageService,
+        validator: AlbumsValidator,
+      },
     },
     {
       plugin: songs,
-      options: { service: songService, validator: SongValidator },
+      options: {
+        service: songService,
+        validator: SongsValidator,
+      },
     },
     {
       plugin: users,
-      options: { service: userService, validator: UserValidator },
+      options: {
+        service: userService,
+        validator: UsersValidator,
+      },
     },
     {
       plugin: authentications,
@@ -133,7 +160,10 @@ const init = async () => {
     },
     {
       plugin: playlists,
-      options: { service: playlistService, validator: PlaylistValidator },
+      options: {
+        service: playlistService,
+        validator: PlaylistsValidator,
+      },
     },
     {
       plugin: collaborations,
@@ -141,15 +171,22 @@ const init = async () => {
         collaborationService,
         userService,
         playlistService,
-        validator: CollaborationValidator,
+        validator: CollaborationsValidator,
+      },
+    },
+    {
+      plugin: _exports,
+      options: {
+        service: ProducerService,
+        validator: ExportsValidator,
+        playlistService,
       },
     },
   ]);
 
-  // Start server
+  // Menjalankan server
   await server.start();
   console.log(`Server berjalan pada ${server.info.uri}`);
 };
 
-// Jalankan fungsi inisialisasi server
 init();

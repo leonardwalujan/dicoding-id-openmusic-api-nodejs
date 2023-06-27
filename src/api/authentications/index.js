@@ -1,7 +1,7 @@
 const AuthenticationsHandler = require('./handler');
 const routes = require('./routes');
 
-module.exports = {
+const plugin = {
   name: 'Authentication Plugin',
   version: '1.0.0',
   register: async (
@@ -18,3 +18,5 @@ module.exports = {
     server.route(routes(authenticationsHandler));
   },
 };
+
+module.exports = plugin;
