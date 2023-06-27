@@ -32,10 +32,12 @@ In v2.0.0 this API implements Authentication and Authorization. Features in v2.0
 - User Account
 - Playlists and Playlists Collaboration
 
-**(NEW)** In v3.0.0 this API implements Message Broker, Storage and Cache. Features in v3.0.0 includes:
+In v3.0.0 this API implements Message Broker, Storage and Cache. Features in v3.0.0 includes:
 
 - Album Cover
 - Album Likes
 - Export Song on Playlists
+
+**(NEW)** In v3.0.1, I fix a migration code for create-table-user-album-likes due of error when migrating to the database
 
 Note: The code documentation for this repository is written using Bahasa Indonesia.

@@ -7,20 +7,16 @@ exports.up = (pgm) => {
     user_id: {
       type: 'VARCHAR(50)',
       notNull: true,
-      references: {
-        table: 'users',
-        constraintName: 'fk_user_album_likes.user_id:users.id',
-        onDelete: 'CASCADE',
-      },
+      references: 'users',
+      referencesConstraintName: 'fk_user_album_likes.user_id:users.id',
+      onDelete: 'cascade',
     },
     album_id: {
       type: 'VARCHAR(50)',
       notNull: true,
-      references: {
-        table: 'albums',
-        constraintName: 'fk_user_album_likes.album_id:albums.id',
-        onDelete: 'CASCADE',
-      },
+      references: 'albums',
+      referencesConstraintName: 'fk_user_album_likes.album_id:albums.id',
+      onDelete: 'cascade',
     },
   });
 };
