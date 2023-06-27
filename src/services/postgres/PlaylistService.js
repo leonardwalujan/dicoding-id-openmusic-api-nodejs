@@ -4,13 +4,10 @@ const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
-/**
- * Class yang menangani operasi terkait playlist.
- */
 class PlaylistService {
   /**
-   * Membuat instance dari PlaylistService.
-   * @param {CollaborationService} collaborationService - Instance dari CollaborationService.
+   * Membuat instance baru dari PlaylistService.
+   * @param {CollaborationService} collaborationService - Instance CollaborationService.
    */
   constructor(collaborationService) {
     this.pool = new Pool();
@@ -18,7 +15,7 @@ class PlaylistService {
   }
 
   /**
-   * Menambahkan playlist baru.
+   * Menambahkan playlist baru ke dalam database.
    * @param {string} name - Nama playlist.
    * @param {string} owner - ID pemilik playlist.
    * @returns {string} - ID playlist yang ditambahkan.
@@ -35,13 +32,13 @@ class PlaylistService {
 
       const { rows } = await this.pool.query(query);
       return rows[0].id;
-    } catch {
+    } catch (error) {
       throw new InvariantError('Playlist gagal ditambahkan');
     }
   }
 
   /**
-   * Mendapatkan daftar playlist berdasarkan pemilik.
+   * Mengambil daftar playlist berdasarkan pemilik.
    * @param {string} owner - ID pemilik playlist.
    * @returns {Array} - Daftar playlist.
    */
@@ -73,7 +70,7 @@ class PlaylistService {
 
     const { rowCount } = await this.pool.query(query);
     if (!rowCount) {
-      throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan!');
+      throw new NotFoundError('Playlist gagal dihapus. ID tidak ditemukan');
     }
   }
 
@@ -92,15 +89,15 @@ class PlaylistService {
         values: [id, playlistId, songId],
       };
       await this.pool.query(query);
-    } catch {
-      throw new NotFoundError('Lagu tidak ditemukan.');
+    } catch (error) {
+      throw new NotFoundError('Lagu tidak ditemukan!');
     }
   }
 
   /**
-   * Mendapatkan daftar lagu dari sebuah playlist.
+   * Mengambil daftar lagu dari playlist.
    * @param {string} playlistId - ID playlist.
-   * @returns {Object} - Objek playlist beserta daftar lagunya.
+   * @returns {Object} - Informasi playlist beserta daftar lagu.
    */
   async getSongsFromPlaylist(playlistId) {
     const query = {
@@ -131,7 +128,7 @@ class PlaylistService {
   }
 
   /**
-   * Menghapus lagu dari sebuah playlist.
+   * Menghapus lagu dari playlist.
    * @param {string} playlistId - ID playlist.
    * @param {string} songId - ID lagu.
    * @throws {NotFoundError} - Jika lagu tidak ditemukan.
@@ -145,17 +142,16 @@ class PlaylistService {
 
     const { rowCount } = await this.pool.query(query);
 
-    if (!rowCount) {
-      throw new NotFoundError('Lagu tidak ditemukan');
-    }
+    if (!rowCount) throw new NotFoundError('Lagu tidak ditemukan!');
   }
 
   /**
-   * Menambahkan aktivitas playlist.
-   * @param {Object} playlistId - ID playlist.
-   * @param {string} songId - ID lagu.
-   * @param {string} userId - ID pengguna.
-   * @param {string} action - Aksi yang dilakukan.
+   * Menambahkan aktivitas ke dalam playlist.
+   * @param {Object} playlistActivity - Objek aktivitas playlist.
+   * @param {string} playlistActivity.playlistId - ID playlist.
+   * @param {string} playlistActivity.songId - ID lagu.
+   * @param {string} playlistActivity.userId - ID pengguna.
+   * @param {string} playlistActivity.action - Tindakan yang dilakukan.
    */
   async addPlaylistActivity({ playlistId, songId, userId, action }) {
     const id = `activity-${Date.now()}`;
@@ -171,7 +167,7 @@ class PlaylistService {
   }
 
   /**
-   * Mendapatkan aktivitas playlist.
+   * Mengambil daftar aktivitas playlist.
    * @param {string} playlistId - ID playlist.
    * @returns {Array} - Daftar aktivitas playlist.
    * @throws {NotFoundError} - Jika aktivitas playlist tidak ditemukan.
@@ -187,9 +183,7 @@ class PlaylistService {
     };
 
     const { rows, rowCount } = await this.pool.query(query);
-    if (!rowCount) {
-      throw new NotFoundError('Playlist Activity tidak ditemukan');
-    }
+    if (!rowCount) throw new NotFoundError('Playlist Activity tidak ditemukan');
 
     return rows;
   }
@@ -222,13 +216,11 @@ class PlaylistService {
 
     const { rowCount } = await this.pool.query(query);
 
-    if (rowCount) {
-      throw new InvariantError('Lagu sudah ada di playlist.');
-    }
+    if (rowCount) throw new InvariantError('Lagu sudah ada dalam playlist.');
   }
 
   /**
-   * Memverifikasi pemilik playlist.
+   * Memverifikasi apakah pengguna adalah pemilik playlist.
    * @param {string} playlistId - ID playlist.
    * @param {string} owner - ID pemilik playlist.
    * @throws {NotFoundError} - Jika playlist tidak ditemukan.
@@ -241,18 +233,16 @@ class PlaylistService {
     };
 
     const { rows, rowCount } = await this.pool.query(query);
-    if (!rowCount) {
-      throw new NotFoundError('Playlist tidak ditemukan');
-    }
+    if (!rowCount) throw new NotFoundError('Playlist tidak ditemukan!');
 
     const playlist = rows[0];
     if (playlist.owner !== owner) {
-      throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
+      throw new AuthorizationError('Anda tidak berhak mengakses resource ini!');
     }
   }
 
   /**
-   * Memverifikasi akses playlist.
+   * Memverifikasi apakah pengguna memiliki akses ke playlist.
    * @param {string} playlistId - ID playlist.
    * @param {string} userId - ID pengguna.
    * @throws {NotFoundError} - Jika playlist tidak ditemukan.

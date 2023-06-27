@@ -22,20 +22,21 @@ class UserHandler {
    * @param {Object} h - Objek response toolkit.
    * @returns {Object} - Objek response.
    */
-  async postUserHandler({ payload }, h) {
+  async postUserHandler(request, h) {
+    const { payload } = request;
+
     this.validator.validateUserPayload(payload);
 
     const userId = await this.service.addUser(payload);
 
-    const response = h.response({
+    const response = {
       status: 'success',
       message: 'User berhasil ditambahkan',
       data: {
         userId,
       },
-    });
-    response.code(201);
-    return response;
+    };
+    return h.response(response).code(201);
   }
 }
 

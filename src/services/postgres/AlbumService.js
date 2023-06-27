@@ -2,13 +2,11 @@ const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
+const { mapDBToModel } = require('../../utils');
 
-/**
- * Service yang bertanggung jawab untuk operasi terkait album.
- */
 class AlbumService {
   /**
-   * Membuat instance baru dari kelas `AlbumService`.
+   * Membuat instance baru dari AlbumService.
    */
   constructor() {
     this.pool = new Pool();
@@ -16,11 +14,11 @@ class AlbumService {
 
   /**
    * Menambahkan album baru ke database.
-   * @param {object} album - Informasi album yang akan ditambahkan.
-   * @param {string} album.name - Nama album.
-   * @param {number} album.year - Tahun album.
-   * @returns {string} ID album yang berhasil ditambahkan.
-   * @throws {InvariantError} Jika gagal menambahkan album.
+   * @param {Object} albumData - Data album yang akan ditambahkan.
+   * @param {string} albumData.name - Nama album.
+   * @param {number} albumData.year - Tahun album.
+   * @returns {string} - ID album yang ditambahkan.
+   * @throws {InvariantError} - Jika gagal menambahkan album.
    */
   async addAlbum({ name, year }) {
     const id = `album-${nanoid(16)}`;
@@ -39,22 +37,23 @@ class AlbumService {
   }
 
   /**
-   * Mengambil data album berdasarkan ID.
-   * @param {string} id - ID album yang akan dicari.
-   * @returns {object} Data album yang ditemukan.
-   * @throws {NotFoundError} Jika album tidak ditemukan.
+   * Mengambil informasi album berdasarkan ID.
+   * @param {string} id - ID album yang akan diambil.
+   * @returns {Object} - Informasi album yang sesuai dengan ID.
+   * @throws {NotFoundError} - Jika album tidak ditemukan.
    */
   async getAlbumById(id) {
     const query = {
       text: `
-        SELECT 
+        SELECT
           albums.id,
           albums.name,
           albums.year,
+          albums.cover_url,
           COALESCE(
             JSON_AGG(
               JSON_BUILD_OBJECT(
-                'id', songs.id, 
+                'id', songs.id,
                 'title', songs.title,
                 'performer', songs.performer
               ) ORDER BY songs.title ASC
@@ -62,7 +61,7 @@ class AlbumService {
           ) AS songs
         FROM albums
         LEFT JOIN songs ON albums.id = songs.album_id
-        WHERE albums.id = $1 
+        WHERE albums.id = $1
         GROUP BY albums.id
       `,
       values: [id],
@@ -70,18 +69,20 @@ class AlbumService {
 
     const { rows, rowCount } = await this.pool.query(query);
     if (!rowCount) {
-      throw new NotFoundError('Album tidak ditemukan');
+      throw new NotFoundError('Gagal mendapatkan album, id tidak ditemukan!');
     }
-    return rows[0];
+
+    const mappedResult = rows.map(mapDBToModel);
+    return mappedResult[0];
   }
 
   /**
-   * Mengedit data album berdasarkan ID.
-   * @param {string} id - ID album yang akan diubah.
-   * @param {object} album - Informasi album yang akan diubah.
-   * @param {string} album.name - Nama album baru.
-   * @param {number} album.year - Tahun album baru.
-   * @throws {NotFoundError} Jika album tidak ditemukan.
+   * Mengedit album berdasarkan ID.
+   * @param {string} id - ID album yang akan diedit.
+   * @param {Object} albumData - Data album yang akan diubah.
+   * @param {string} albumData.name - Nama album yang baru.
+   * @param {number} albumData.year - Tahun album yang baru.
+   * @throws {NotFoundError} - Jika album tidak ditemukan.
    */
   async editAlbumById(id, { name, year }) {
     const query = {
@@ -91,14 +92,14 @@ class AlbumService {
 
     const { rowCount } = await this.pool.query(query);
     if (!rowCount) {
-      throw new NotFoundError('Gagal memperbarui album, album tidak ditemukan');
+      throw new NotFoundError('Gagal memperbarui album, id tidak ditemukan!');
     }
   }
 
   /**
    * Menghapus album berdasarkan ID.
    * @param {string} id - ID album yang akan dihapus.
-   * @throws {NotFoundError} Jika album tidak ditemukan.
+   * @throws {NotFoundError} - Jika album tidak ditemukan.
    */
   async deleteAlbumById(id) {
     const query = {
@@ -108,7 +109,58 @@ class AlbumService {
 
     const { rowCount } = await this.pool.query(query);
     if (!rowCount) {
-      throw new NotFoundError('Gagal menghapus album, album tidak ditemukan');
+      throw new NotFoundError('Album gagal dihapus, id tidak ditemukan!');
+    }
+  }
+
+  /**
+   * Menambahkan cover album berdasarkan ID.
+   * @param {string} id - ID album yang akan ditambahkan cover.
+   * @param {string} url - URL cover album.
+   */
+  async addAlbumCover(id, url) {
+    const query = {
+      text: 'UPDATE albums SET cover_url=$1 WHERE id = $2',
+      values: [url, id],
+    };
+
+    await this.pool.query(query);
+  }
+
+  /**
+   * Mengambil cover album berdasarkan ID.
+   * @param {string} id - ID album yang akan diambil covernya.
+   * @returns {string} - URL cover album.
+   * @throws {NotFoundError} - Jika album tidak ditemukan.
+   */
+  async getAlbumCoverById(id) {
+    const query = {
+      text: 'SELECT cover_url FROM albums WHERE id = $1',
+      values: [id],
+    };
+
+    const { rows, rowCount } = await this.pool.query(query);
+    if (!rowCount) {
+      throw new NotFoundError('Album tidak ditemukan!');
+    }
+
+    return rows[0].cover_url;
+  }
+
+  /**
+   * Memverifikasi ketersediaan album berdasarkan ID.
+   * @param {string} id - ID album yang akan diverifikasi ketersediaannya.
+   * @throws {NotFoundError} - Jika album tidak ditemukan.
+   */
+  async verifyAlbumAvailability(id) {
+    const query = {
+      text: 'SELECT id FROM albums WHERE id = $1',
+      values: [id],
+    };
+
+    const { rowCount } = await this.pool.query(query);
+    if (!rowCount) {
+      throw new NotFoundError('Album tidak ditemukan!');
     }
   }
 }

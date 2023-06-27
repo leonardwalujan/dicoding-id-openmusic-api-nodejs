@@ -1,12 +1,9 @@
 const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 
-/**
- * Class yang menangani operasi terkait autentikasi.
- */
 class AuthenticationService {
   /**
-   * Membuat instance dari AuthenticationService.
+   * Membuat instance baru dari AuthenticationService.
    */
   constructor() {
     this.pool = new Pool();
@@ -26,7 +23,7 @@ class AuthenticationService {
   }
 
   /**
-   * Memverifikasi keberadaan refresh token dalam database.
+   * Memverifikasi kevalidan refresh token.
    * @param {string} token - Refresh token.
    * @throws {InvariantError} - Jika refresh token tidak valid.
    */
@@ -38,7 +35,7 @@ class AuthenticationService {
 
     const { rowCount } = await this.pool.query(query);
     if (!rowCount) {
-      throw new InvariantError('Refresh token tidak valid');
+      throw new InvariantError('Refresh token tidak valid!');
     }
   }
 

@@ -1,12 +1,13 @@
 const autoBind = require('auto-bind');
 
+/**
+ * Class yang menangani operasi terkait lagu.
+ */
 class SongsHandler {
   /**
-   * Membuat instance baru dari kelas `SongsHandler`.
-   *
-   * @param {object} service - Instance dari kelas `SongService`
-   * untuk melakukan operasi terkait lagu.
-   * @param {object} validator - Instance dari kelas `SongValidator` untuk validasi data lagu.
+   * Membuat instance dari SongsHandler.
+   * @param {Object} service - Instance dari songService.
+   * @param {Object} validator - Instance dari validator.
    */
   constructor(service, validator) {
     this.service = service;
@@ -16,16 +17,18 @@ class SongsHandler {
   }
 
   /**
-   * Handler untuk mengelola permintaan POST lagu baru.
-   *
-   * @param {object} request - Objek request yang diterima dari server.
-   * @param {object} h - Toolkit response dari hapi.js.
-   * @returns {object} Objek response yang berisi status dan data lagu yang berhasil ditambahkan.
+   * Handler untuk permintaan POST pada endpoint /songs.
+   * Menambahkan lagu baru.
+   * @param {Object} request - Objek permintaan.
+   * @param {Object} h - Response toolkit.
+   * @returns {Object} - Objek respons.
    */
   async postSongHandler(request, h) {
-    this.validator.validateSongPayload(request.payload);
+    const { payload } = request;
 
-    const songId = await this.service.addSong(request.payload);
+    this.validator.validateSongPayload(payload);
+
+    const songId = await this.service.addSong(payload);
 
     const response = {
       status: 'success',
@@ -33,39 +36,39 @@ class SongsHandler {
         songId,
       },
     };
-
     return h.response(response).code(201);
   }
 
   /**
-   * Handler untuk mengelola permintaan GET lagu dengan query parameter.
-   *
-   * @param {object} request - Objek request yang diterima dari server.
-   * @returns {object} Objek response yang berisi status dan data lagu yang berhasil ditemukan.
+   * Handler untuk permintaan GET pada endpoint /songs.
+   * Mengambil daftar lagu dengan filter opsional berdasarkan judul dan penyanyi.
+   * @param {Object} request - Objek permintaan.
+   * @returns {Object} - Objek respons.
    */
-  async getSongsHandler(request, h) {
-    const { title, performer } = request.query;
+  async getSongsHandler(request) {
+    const { query } = request;
+    const { title, performer } = query;
 
     const songs = await this.service.getSongs(title, performer);
-
-    const response = {
+    return {
       status: 'success',
       data: {
         songs,
       },
     };
-
-    return h.response(response);
   }
 
   /**
-   * Handler untuk mengelola permintaan GET lagu berdasarkan ID.
-   *
-   * @param {object} request - Objek request yang diterima dari server.
-   * @returns {object} Objek response yang berisi status dan data lagu yang berhasil ditemukan.
+   * Handler untuk permintaan GET pada endpoint /songs/{id}.
+   * Mengambil detail lagu berdasarkan ID.
+   * @param {Object} request - Objek permintaan.
+   * @param {Object} h - Response toolkit.
+   * @returns {Object} - Objek respons.
    */
   async getSongByIdHandler(request, h) {
-    const song = await this.service.getSongById(request.params.id);
+    const { params } = request;
+
+    const { song, source } = await this.service.getSongById(params.id);
 
     const response = {
       status: 'success',
@@ -73,45 +76,45 @@ class SongsHandler {
         song,
       },
     };
-
-    return h.response(response);
+    return h.response(response).header('X-Data-Source', source).code(200);
   }
 
   /**
-   * Handler untuk mengelola permintaan PUT lagu berdasarkan ID.
-   *
-   * @param {object} request - Objek request yang diterima dari server.
-   * @returns {object} Objek response yang berisi status dan pesan berhasil diperbarui.
+   * Handler untuk permintaan PUT pada endpoint /songs/{id}.
+   * Mengedit lagu berdasarkan ID.
+   * @param {Object} request - Objek permintaan.
+   * @returns {Object} - Objek respons.
    */
-  async putSongByIdHandler(request, h) {
-    this.validator.validateSongPayload(request.payload);
+  async putSongByIdHandler(request) {
+    const { params } = request;
+    const { payload } = request;
 
-    const { id: songId } = request.params;
-    await this.service.editSongById(songId, request.payload);
+    this.validator.validateSongPayload(payload);
 
-    const response = {
+    const { id: songId } = params;
+    await this.service.editSongById(songId, payload);
+
+    return {
       status: 'success',
-      message: 'Lagu berhasil diperbarui.',
+      message: 'Lagu berhasil diperbarui',
     };
-
-    return h.response(response);
   }
 
   /**
-   * Handler untuk mengelola permintaan DELETE lagu berdasarkan ID.
-   *
-   * @param {object} request - Objek request yang diterima dari server.
-   * @returns {object} Objek response yang berisi status dan pesan berhasil dihapus.
+   * Handler untuk permintaan DELETE pada endpoint /songs/{id}.
+   * Menghapus lagu berdasarkan ID.
+   * @param {Object} request - Objek permintaan.
+   * @returns {Object} - Objek respons.
    */
-  async deleteSongByIdHandler(request, h) {
-    await this.service.deleteSongById(request.params.id);
+  async deleteSongByIdHandler(request) {
+    const { params } = request;
 
-    const response = {
+    await this.service.deleteSongById(params.id);
+
+    return {
       status: 'success',
-      message: 'Lagu berhasil dihapus.',
+      message: 'Lagu berhasil dihapus',
     };
-
-    return h.response(response);
   }
 }
 

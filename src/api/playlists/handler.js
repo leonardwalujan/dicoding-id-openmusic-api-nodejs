@@ -1,13 +1,13 @@
 const autoBind = require('auto-bind');
 
 /**
- * Class yang menangani operasi terkait playlist.
+ * Kelas yang menangani operasi terkait playlist.
  */
 class PlaylistsHandler {
   /**
-   * Membuat instance dari PlaylistsHandler.
-   * @param {Object} service - Instance dari playlistService.
-   * @param {Object} validator - Instance dari validator.
+   * Membuat instance PlaylistsHandler.
+   * @param {PlaylistService} service - Instance PlaylistService.
+   * @param {Validator} validator - Instance Validator.
    */
   constructor(service, validator) {
     this.service = service;
@@ -17,10 +17,11 @@ class PlaylistsHandler {
   }
 
   /**
+   * Handler untuk permintaan POST pada endpoint /playlists.
    * Menambahkan playlist baru.
-   * @param {Object} request - Objek request.
-   * @param {Object} h - Objek response toolkit.
-   * @returns {Object} - Objek response.
+   * @param {Object} request - Objek permintaan.
+   * @param {Object} h - Response toolkit.
+   * @returns {Object} - Objek respons.
    */
   async postPlaylistHandler(request, h) {
     const { payload } = request;
@@ -42,9 +43,10 @@ class PlaylistsHandler {
   }
 
   /**
+   * Handler untuk permintaan GET pada endpoint /playlists.
    * Mengambil daftar playlist milik pengguna.
-   * @param {Object} request - Objek request.
-   * @returns {Object} - Objek response.
+   * @param {Object} request - Objek permintaan.
+   * @returns {Object} - Objek respons.
    */
   async getPlaylistsHandler(request) {
     const { auth } = request;
@@ -61,9 +63,10 @@ class PlaylistsHandler {
   }
 
   /**
+   * Handler untuk permintaan DELETE pada endpoint /playlists/{id}.
    * Menghapus playlist berdasarkan ID.
-   * @param {Object} request - Objek request.
-   * @returns {Object} - Objek response.
+   * @param {Object} request - Objek permintaan.
+   * @returns {Object} - Objek respons.
    */
   async deletePlaylistByIdHandler(request) {
     const { params } = request;
@@ -82,10 +85,11 @@ class PlaylistsHandler {
   }
 
   /**
+   * Handler untuk permintaan POST pada endpoint /playlists/{id}/songs.
    * Menambahkan lagu ke dalam playlist.
-   * @param {Object} request - Objek request.
-   * @param {Object} h - Objek response toolkit.
-   * @returns {Object} - Objek response.
+   * @param {Object} request - Objek permintaan.
+   * @param {Object} h - Response toolkit.
+   * @returns {Object} - Objek respons.
    */
   async postSongIntoPlaylistHandler(request, h) {
     const { params } = request;
@@ -116,9 +120,10 @@ class PlaylistsHandler {
   }
 
   /**
+   * Handler untuk permintaan GET pada endpoint /playlists/{id}/songs.
    * Mengambil daftar lagu dari playlist.
-   * @param {Object} request - Objek request.
-   * @returns {Object} - Objek response.
+   * @param {Object} request - Objek permintaan.
+   * @returns {Object} - Objek respons.
    */
   async getSongsFromPlaylistHandler(request) {
     const { params } = request;
@@ -139,9 +144,10 @@ class PlaylistsHandler {
   }
 
   /**
+   * Handler untuk permintaan DELETE pada endpoint /playlists/{id}/songs.
    * Menghapus lagu dari playlist.
-   * @param {Object} request - Objek request.
-   * @returns {Object} - Objek response.
+   * @param {Object} request - Objek permintaan.
+   * @returns {Object} - Objek respons.
    */
   async deleteSongFromPlaylistHandler(request) {
     const { params } = request;
@@ -171,9 +177,10 @@ class PlaylistsHandler {
   }
 
   /**
+   * Handler untuk permintaan GET pada endpoint /playlists/{id}/activities.
    * Mengambil aktivitas playlist.
-   * @param {Object} request - Objek request.
-   * @returns {Object} - Objek response.
+   * @param {Object} request - Objek permintaan.
+   * @returns {Object} - Objek respons.
    */
   async getPlaylistActivitiesHandler(request) {
     const { params } = request;

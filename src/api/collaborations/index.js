@@ -1,10 +1,10 @@
 const CollaborationsHandler = require('./handler');
 const routes = require('./routes');
 
-module.exports = {
+const plugin = {
   name: 'Collaborations Plugin',
   version: '1.0.0',
-  register: (
+  register: async (
     server,
     { collaborationService, userService, playlistService, validator },
   ) => {
@@ -14,6 +14,9 @@ module.exports = {
       playlistService,
       validator,
     );
+
     server.route(routes(collaborationsHandler));
   },
 };
+
+module.exports = plugin;

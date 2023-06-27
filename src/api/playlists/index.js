@@ -1,7 +1,7 @@
 const PlaylistsHandler = require('./handler');
 const routes = require('./routes');
 
-module.exports = {
+const plugin = {
   name: 'Playlists Plugin',
   version: '1.0.0',
   register: (server, { service, validator }) => {
@@ -9,3 +9,5 @@ module.exports = {
     server.route(routes(playlistsHandler));
   },
 };
+
+module.exports = plugin;
