@@ -27,7 +27,7 @@ In v1.0.0 this API implements Data Validation and Database. Features in v1.0.0 i
 
 In v1.0.1, I optimise this code from src/api/albums/handler.js and src/api/songs/handler.js with removing some redundant code, fixing the linter issue, and optimise another code with implementing from linter suggestions.
 
-**(NEW)** In v2.0.0 this API implements Authentication and Authorization. Features in v2.0.0 includes:
+In v2.0.0 this API implements Authentication and Authorization. Features in v2.0.0 includes:
 
 - User Account
 - Playlists and Playlists Collaboration
