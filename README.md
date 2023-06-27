@@ -36,5 +36,6 @@ In v1.0.1, I optimise this code from src/api/albums/handler.js and src/api/songs
 
 - Album Cover
 - Album Likes
+- Export Song on Playlists
 
 Note: The code documentation for this repository is written using Bahasa Indonesia.
