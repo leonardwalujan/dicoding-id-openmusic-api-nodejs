@@ -38,8 +38,8 @@ In v3.0.0 this API implements Message Broker, Storage and Cache. Features in v3.
 - Album Likes
 - Export Song on Playlists
 
-**(NEW)** In v3.0.1, I fix a migration code for create-table-user-album-likes due of error when migrating to the database
+**(NEW)** In v3.0.1, I fix a migration code for create-table-user-album-likes due of error when migrating to the database.
 
-Consumer Program for export song on playlists repository: ["OpenMusic API Consumer Program Repository"](https://github.com/leonardwalujan/dicoding-id-openmusic-api-queue-consume)
+Consumer Program for export song on playlists repository: ["OpenMusic API Consumer Program Repository"](https://github.com/leonardwalujan/dicoding-id-openmusic-api-queue-consumer)
 
 Note: The code documentation for this repository is written using Bahasa Indonesia.
